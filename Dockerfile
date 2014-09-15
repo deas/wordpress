@@ -1,4 +1,4 @@
-FROM debian:wheezy
+FROM ubuntu:trusty
 
 RUN apt-get update && apt-get install -y \
 		apache2 \
@@ -36,12 +36,12 @@ RUN rm -rf /var/www/html && mkdir /var/www/html
 VOLUME /var/www/html
 WORKDIR /var/www/html
 
-ENV WORDPRESS_VERSION 4.0.0
+ENV WORDPRESS_VERSION 4.0
 
 # upstream tarballs include ./wordpress/ so this gives us /usr/src/wordpress
 RUN curl -SL http://wordpress.org/wordpress-$WORDPRESS_VERSION.tar.gz | tar -xzC /usr/src/
 
-COPY docker-apache.conf /etc/apache2/sites-available/wordpress
+COPY docker-apache.conf /etc/apache2/sites-available/wordpress.conf
 RUN a2dissite 000-default && a2ensite wordpress
 
 COPY docker-entrypoint.sh /entrypoint.sh
