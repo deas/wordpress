@@ -25,26 +25,25 @@ ENV APACHE_LOG_DIR /var/log/apache2
 ENV LANG C
 RUN mkdir -p $APACHE_RUN_DIR $APACHE_LOCK_DIR $APACHE_LOG_DIR
 
-# make CustomLog (access log) go to stdout instead of files
-#  and ErrorLog to stderr
+# make CustomLog (access log) go to stdout instead of files, ErrorLog to stderr
 RUN find "$APACHE_CONFDIR" -type f -exec sed -ri ' \
 	s!^(\s*CustomLog)\s+\S+!\1 /proc/self/fd/1!g; \
 	s!^(\s*ErrorLog)\s+\S+!\1 /proc/self/fd/2!g; \
 ' '{}' ';'
 
-RUN rm -rf /var/www/html && mkdir /var/www/html
-VOLUME /var/www/html
-WORKDIR /var/www/html
+# ErrorLog "|/usr/bin/rotatelogs -l /var/log/apache2/.../error-%Y.%m.%d.log 86400"
+# CustomLog "|/usr/bin/rotatelogs -l /var/log/apache2/.../access-%Y.%m.%d.log 86400" common
 
-ENV WORDPRESS_VERSION 4.0
+# RUN rm -rf /var/www/html && mkdir /var/www/html
+# VOLUME /var/www/html
+VOLUME /usr/share/wordpress
+WORKDIR /usr/share/wordpress
 
-# upstream tarballs include ./wordpress/ so this gives us /usr/src/wordpress
-RUN curl -SL http://wordpress.org/wordpress-$WORDPRESS_VERSION.tar.gz | tar -xzC /usr/src/
-
-COPY docker-apache.conf /etc/apache2/sites-available/wordpress.conf
+ADD docker-apache.conf /etc/apache2/sites-available/wordpress.conf
 RUN a2dissite 000-default && a2ensite wordpress
-
-COPY docker-entrypoint.sh /entrypoint.sh
+ADD wp-config-template.php /wp-config-template.php
+ADD docker-entrypoint.sh /entrypoint.sh
+ADD execute-statements-mysql.php  /execute-statements-mysql.php
 
 ENTRYPOINT ["/entrypoint.sh"]
 EXPOSE 80

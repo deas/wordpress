@@ -30,5 +30,6 @@ while($line = fgets(STDIN)){
         $cnt++;
     }
 }
+# $mysql->close();
 echo "$cnt statements executed\n";
 ?>
