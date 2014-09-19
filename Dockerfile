@@ -44,6 +44,7 @@ RUN a2dissite 000-default && a2ensite wordpress
 ADD wp-config-template.php /wp-config-template.php
 ADD docker-entrypoint.sh /entrypoint.sh
 ADD execute-statements-mysql.php  /execute-statements-mysql.php
+ADD rename_site.php /rename.site.php
 
 ENTRYPOINT ["/entrypoint.sh"]
 EXPOSE 80

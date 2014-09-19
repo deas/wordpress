@@ -9,7 +9,9 @@ SRC_DIR=/
 
 #  Test overwrites
 # . test_env.sh
-
+# : ${WORDPRESS_JETPACK_DEV_DEBUG:=1}
+WORDPRESS_JETPACK_DEV_DEBUG=${WORDPRESS_JETPACK_DEV_DEBUG-"1"}
+IMPORT_SRC=${IMPORT_SRC-"/usr/share/wordpress-import"}
 IMPORT_SQL=${IMPORT_SRC}/wordpress.sql
 
 set -e
@@ -48,6 +50,11 @@ if ! [ -e "${EXTRACT_DIR}/wordpress/index.php" -a -e "${EXTRACT_DIR}/wordpress/w
         if [ -e "${IMPORT_SQL}" ] ; then
             cat "${IMPORT_SQL}" | TERM=dumb php "${SRC_DIR}/execute-statements-mysql.php" $WORDPRESS_DB_HOST $WORDPRESS_DB_NAME $WORDPRESS_DB_USER $WORDPRESS_DB_PASSWORD
         fi
+        curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+        chmod +x wp-cli.phar
+        mv wp-cli.phar "${EXTRACT_DIR}/wordpress/wp"
+        mv ${EXTRACT_DIR}/wordpress/index.php ${EXTRACT_DIR}/wordpress/index.php-orig
+        mv ${SRC_DIR}/rename.site.php ${EXTRACT_DIR}/wordpress/index.php
     else
         current=$(curl -sSL 'http://api.wordpress.org/core/version-check/1.7/' | sed -r 's/^.*"current":"([^"]+)".*$/\1/')
         curl -SL http://wordpress.org/wordpress-$current.tar.gz | tar -xzC ${EXTRACT_DIR}
@@ -96,7 +103,7 @@ set_apache_config() {
 }
 
 if [ -w /etc/apache2/sites-enabled/wordpress.conf ] ; then
-    # FIXME WP_JETPACK_DEV_DEBUG true
+    set_apache_config 'WP_JETPACK_DEV_DEBUG'_"$WORDPRESS_JETPACK_DEV_DEBUG"
     set_apache_config 'WP_DB_HOST' "$WORDPRESS_DB_HOST"
     set_apache_config 'WP_DB_USER' "$WORDPRESS_DB_USER"
     set_apache_config 'WP_DB_PASS' "$WORDPRESS_DB_PASSWORD"
