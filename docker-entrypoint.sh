@@ -53,6 +53,8 @@ if ! [ -e "${EXTRACT_DIR}/wordpress/index.php" -a -e "${EXTRACT_DIR}/wordpress/w
         curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
         chmod +x wp-cli.phar
         mv wp-cli.phar "${EXTRACT_DIR}/wordpress/wp"
+
+        # FIXME : change hostname/home when its given
         mv ${EXTRACT_DIR}/wordpress/index.php ${EXTRACT_DIR}/wordpress/index.php-orig
         mv ${SRC_DIR}/rename.site.php ${EXTRACT_DIR}/wordpress/index.php
     else
