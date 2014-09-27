@@ -138,4 +138,7 @@ if [ -n "$APACHE_RUN_USER" -a -n "$APACHE_RUN_GROUP" ] ; then
     chown -R "$APACHE_RUN_USER:$APACHE_RUN_GROUP" .
 fi
 
+# https://issues.apache.org/bugzilla/show_bug.cgi?id=54519
+rm -f /var/run/apache2/apache2.pid
+
 exec "$@"
