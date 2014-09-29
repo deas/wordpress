@@ -26,9 +26,9 @@ $result = mysqli_query($con, $query);
 while($row = mysqli_fetch_array($result)) {
     // echo $row['option_name'] . " " . $row['option_value'] . "\n";
     // http://php.net/manual/de/function.exec.php
-    $cmd = "WP_DB_NAME=".$mysql_database." WP_DB_USER=".$mysql_username." WP_DB_PASS=".$mysql_password." WP_DB_HOST=".$mysql_host." ".$wp_dir."wp --path=".$wp_dir." search-replace ".$row['option_value']." $new_home 2>/tmp/phperr.log";
+    $cmd = "WP_DB_NAME=".$mysql_database." WP_DB_USER=".$mysql_username." WP_DB_PASS=".$mysql_password." WP_DB_HOST=".$mysql_host." ".$wp_dir."/wp --allow-root --path=".$wp_dir." search-replace ".$row['option_value']." $new_home 2>/tmp/phperr.log";
     $v = exec($cmd, $out, $rv);
-    // echo "$cmd $v $rv $out";
+    echo("$cmd\n$v\n$rv\n$out\n");
 }
 mysqli_close($con);
 // unlink($wp_dir."index.php");
