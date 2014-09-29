@@ -1,15 +1,7 @@
 FROM ubuntu:trusty
 
-RUN apt-get update && apt-get install -y \
-		apache2 \
-		curl \
-		libapache2-mod-php5 \
-		php5-curl \
-		php5-gd \
-		php5-mysql \
-		rsync \
-		wget \
-	&& rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y apache2 curl libapache2-mod-php5 php5-curl php5-gd \
+    php5-mysql rsync wget && rm -rf /var/lib/apt/lists/*
 RUN a2enmod rewrite
 
 # copy a few things from apache's init script that it requires to be setup
@@ -27,8 +19,8 @@ RUN mkdir -p $APACHE_RUN_DIR $APACHE_LOCK_DIR $APACHE_LOG_DIR
 
 # make CustomLog (access log) go to stdout instead of files, ErrorLog to stderr
 RUN find "$APACHE_CONFDIR" -type f -exec sed -ri ' \
-	s!^(\s*CustomLog)\s+\S+!\1 /proc/self/fd/1!g; \
-	s!^(\s*ErrorLog)\s+\S+!\1 /proc/self/fd/2!g; \
+    s!^(\s*CustomLog)\s+\S+!\1 /proc/self/fd/1!g; \
+    s!^(\s*ErrorLog)\s+\S+!\1 /proc/self/fd/2!g; \
 ' '{}' ';'
 
 # ErrorLog "|/usr/bin/rotatelogs -l /var/log/apache2/.../error-%Y.%m.%d.log 86400"
