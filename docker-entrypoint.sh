@@ -47,6 +47,7 @@ if ! [ -e "${EXTRACT_DIR}/wordpress/index.php" -a -e "${EXTRACT_DIR}/wordpress/w
         ( set -x; ls -A ${EXTRACT_DIR}/wordpress ; sleep 10 )
     fi
     if [ -e "${IMPORT_SRC}/wp-includes/version.php" ] ; then
+        echo "Importing wordpress from $IMPORT_SRC"
         rsync --archive --one-file-system --quiet "$IMPORT_SRC" "${EXTRACT_DIR}/wordpress"
         if [ -e "${IMPORT_SQL}" ] ; then
             cat "${IMPORT_SQL}" | TERM=dumb php "${SRC_DIR}/execute-statements-mysql.php" $WORDPRESS_DB_HOST $WORDPRESS_DB_NAME $WORDPRESS_DB_USER $WORDPRESS_DB_PASSWORD
