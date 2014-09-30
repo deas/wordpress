@@ -1,7 +1,7 @@
 FROM ubuntu:trusty
 
 RUN apt-get update && apt-get install -y apache2 curl libapache2-mod-php5 php5-curl php5-gd \
-    php5-mysql rsync wget && rm -rf /var/lib/apt/lists/*
+    php5-mysql php5-xdebug rsync wget && rm -rf /var/lib/apt/lists/*
 RUN a2enmod rewrite
 
 # copy a few things from apache's init script that it requires to be setup

@@ -12,8 +12,11 @@ SRC_DIR=/
 # . test_env.sh
 # : ${WORDPRESS_JETPACK_DEV_DEBUG:=1}
 WORDPRESS_JETPACK_DEV_DEBUG=${WORDPRESS_JETPACK_DEV_DEBUG-"1"}
+PHP_XDEBUG_ENABLED=${PHP_XDEBUG_ENABLED-"0"}
 IMPORT_SRC=${IMPORT_SRC-"/usr/share/wordpress-import"}
 IMPORT_SQL=${IMPORT_SRC}/wordpress.sql
+
+DOCKER_HOST=`ip route show | grep ^default | awk '{print $3}'`
 
 set -e
 
@@ -25,7 +28,7 @@ if [ -z "$MYSQL_PORT_3306_TCP" ]; then
     if ip -B link show docker0 >/dev/null 2>&1 ; then
         WORDPRESS_DB_HOST=localhost
     else
-        WORDPRESS_DB_HOST=`ip route show | grep ^default | awk '{print $3}'`
+        WORDPRESS_DB_HOST="$DOCKER_HOST"
     fi
 else
     WORDPRESS_DB_HOST="${MYSQL_PORT_3306_TCP#tcp://}"
@@ -121,6 +124,14 @@ if [ -w /etc/apache2/sites-enabled/wordpress.conf ] ; then
     set_apache_config 'WP_DB_PASS' "$WORDPRESS_DB_PASSWORD"
     set_apache_config 'WP_DB_NAME' "$WORDPRESS_DB_NAME"
 #    set_apache_config 'WP_ABSPATH' "$WORDPRESS_ABSPATH"
+fi
+
+if [ -w /etc/php5/mods-available/xdebug.ini ] ; then
+    cat > /etc/php5/mods-available/xdebug.ini <<EOF
+zend_extension=xdebug.so
+xdebug.remote_enable=$PHP_XDEBUG_ENABLED
+xdebug.remote_host=$DOCKER_HOST
+EOF
 fi
 
 # allow any of these "Authentication Unique Keys and Salts." to be specified via

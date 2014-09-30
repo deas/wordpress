@@ -23,6 +23,7 @@ docker run -it -P \
        -e "WORDPRESS_DB_NAME=wp_scratch" \
        -e "WORDPRESS_DB_PASSWORD=wp_scratch" \
        -e "WORDPRESS_JETPACK_DEV_DEBUG=1" \
+       -e "PHP_XDEBUG_ENABLED=1" \
        -e "SERVICE_NAME=contentreich-web" \
        -e "SERVICE_TAGS=tag1,tag2" \
        -e "SERVICE_REGION=mal-guggn" \
