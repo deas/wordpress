@@ -18,6 +18,7 @@ $mysql_host = getenv('WP_DB_HOST');
 $mysql_username = getenv('WP_DB_USER');
 $mysql_password = getenv('WP_DB_PASS');
 $mysql_database = getenv('WP_DB_NAME');
+$wp = dirname(__FILE__)."/wp";
 
 $query = "select option_name,option_value from wp_options where option_name in ('home')";//,'siteurl')";
 $con = mysqli_connect($mysql_host, $mysql_username, $mysql_password, $mysql_database) or die('Error connecting to MySQL server: ' . mysql_error());
@@ -26,13 +27,17 @@ $result = mysqli_query($con, $query);
 while($row = mysqli_fetch_array($result)) {
     // echo $row['option_name'] . " " . $row['option_value'] . "\n";
     // http://php.net/manual/de/function.exec.php
-    $cmd = "WP_DB_NAME=".$mysql_database." WP_DB_USER=".$mysql_username." WP_DB_PASS=".$mysql_password." WP_DB_HOST=".$mysql_host." ".$wp_dir."/wp --allow-root --path=".$wp_dir." search-replace ".$row['option_value']." $new_home 2>/tmp/phperr.log";
-    $v = exec($cmd, $out, $rv);
-    echo("$cmd\n$v\n$rv\n$out\n");
+    if (strcmp($row['option_value'], $new_home) != 0) {
+        $cmd = "WP_DB_NAME=".$mysql_database." WP_DB_USER=".$mysql_username." WP_DB_PASS=".$mysql_password." WP_DB_HOST=".$mysql_host." ".$wp." --allow-root --path=".$wp_dir." search-replace ".$row['option_value']." $new_home 2>/tmp/phperr.log";
+        $v = exec($cmd, $out, $rv);
+        echo("$cmd\n$v\n$rv\n$out\n");
+    } else {
+        echo("Wordpress Home already set to ".$new_home."\n");
+    }
 }
 mysqli_close($con);
 // unlink($wp_dir."index.php");
-unlink($wp_dir."/wp");
+// unlink($wp_dir."/wp");
 if (file_exists($wp_dir."/index.php-orig")) {
     copy($wp_dir."/index.php-orig","index.php");
     unlink($wp_dir."/index.php-orig");

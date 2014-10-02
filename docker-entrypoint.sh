@@ -56,17 +56,13 @@ if ! [ -e "${EXTRACT_DIR}/wordpress/index.php" -a -e "${EXTRACT_DIR}/wordpress/w
             cat "${IMPORT_SQL}" | TERM=dumb php "${SRC_DIR}/execute-statements-mysql.php" $WORDPRESS_DB_HOST $WORDPRESS_DB_NAME $WORDPRESS_DB_USER $WORDPRESS_DB_PASSWORD
         fi
         # curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-        curl https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o ${EXTRACT_DIR}/wordpress/wp
-        chmod +x ${EXTRACT_DIR}/wordpress/wp
+        # curl https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o ${EXTRACT_DIR}/wordpress/wp
+        # chmod +x ${EXTRACT_DIR}/wordpress/wp
 
         if [ -z "$WORDPRESS_HOME" ] ; then
             echo "Preparing WordPress to set home on first request"
             mv ${EXTRACT_DIR}/wordpress/index.php ${EXTRACT_DIR}/wordpress/index.php-orig
             mv ${SRC_DIR}/rename.site.php ${EXTRACT_DIR}/wordpress/index.php
-        else
-            echo "Updating WordPress Home to $WORDPRESS_HOME"
-            WP_DB_NAME="$WORDPRESS_DB_NAME" WP_HOME="$WORDPRESS_HOME" WP_ABSPATH="$WORDPRESS_ABSPATH" \
-                WP_DB_USER="$WORDPRESS_DB_USER" WP_DB_PASS="$WORDPRESS_DB_PASSWORD" WP_DB_HOST="$WORDPRESS_DB_HOST" php ${SRC_DIR}/rename.site.php
         fi
     else
         current=$(curl -sSL 'http://api.wordpress.org/core/version-check/1.7/' | sed -r 's/^.*"current":"([^"]+)".*$/\1/')
@@ -88,6 +84,12 @@ if ! [ -e "${EXTRACT_DIR}/wordpress/index.php" -a -e "${EXTRACT_DIR}/wordpress/w
 # RewriteRule . /index.php [L]
 # EOF
 #        fi
+fi
+
+if [ ! -z "$WORDPRESS_HOME" ] ; then
+    echo "Verifying WordPress home"
+    WP_DB_NAME="$WORDPRESS_DB_NAME" WP_HOME="$WORDPRESS_HOME" WP_ABSPATH="$WORDPRESS_ABSPATH" \
+        WP_DB_USER="$WORDPRESS_DB_USER" WP_DB_PASS="$WORDPRESS_DB_PASSWORD" WP_DB_HOST="$WORDPRESS_DB_HOST" php ${SRC_DIR}/rename.site.php
 fi
 
 # TODO handle WordPress upgrades magically in the same way, but only if wp-includes/version.php's $wp_version is less than /usr/share/wordpress/wp-includes/version.php's $wp_version
@@ -156,8 +158,8 @@ for unique in "${UNIQUES[@]}"; do
     fi
 done
 
-if [ -n "$APACHE_RUN_USER" -a -n "$APACHE_RUN_GROUP" ] ; then
-    chown -R "$APACHE_RUN_USER:$APACHE_RUN_GROUP" .
+if [ -n "$APACHE_CHOWN_USER" -a -n "$APACHE_CHOWN_GROUP" ] ; then
+    chown -R "$APACHE_CHOWN_USER:$APACHE_CHOWN_GROUP" .
 fi
 
 # https://issues.apache.org/bugzilla/show_bug.cgi?id=54519

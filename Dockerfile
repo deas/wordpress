@@ -37,6 +37,8 @@ ADD wp-config-template.php /wp-config-template.php
 ADD docker-entrypoint.sh /entrypoint.sh
 ADD execute-statements-mysql.php  /execute-statements-mysql.php
 ADD rename_site.php /rename.site.php
+ADD https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar  /wp
+RUN chmod 755 /wp
 
 ENTRYPOINT ["/entrypoint.sh"]
 EXPOSE 80
