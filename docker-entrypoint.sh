@@ -12,6 +12,11 @@ SRC_DIR=/
 # . test_env.sh
 # : ${WORDPRESS_JETPACK_DEV_DEBUG:=1}
 WORDPRESS_JETPACK_DEV_DEBUG=${WORDPRESS_JETPACK_DEV_DEBUG-"1"}
+WORDPRESS_DEBUG=${WORDPRESS_DEBUG-"0"}
+WORDPRESS_DEBUG_LOG=${WORDPRESS_DEBUG_LOG-"0"}
+WORDPRESS_DEBUG_DISPLAY=${WORDPRESS_DEBUG_DISPLAY-"0"}
+WORDPRESS_SCRIPT_DEBUG=${WORDPRESS_SCRIPT_DEBUG-"0"}
+WORDPRESS_SAVEQUERIES=${WORDPRESS_SAVEQUERIES-"0"}
 PHP_XDEBUG_ENABLED=${PHP_XDEBUG_ENABLED-"0"}
 IMPORT_SRC=${IMPORT_SRC-"/usr/share/wordpress-import"}
 IMPORT_SQL=${IMPORT_SRC}/wordpress.sql
@@ -119,8 +124,14 @@ set_apache_config() {
     sed -ri "s/(SetEnv $key) .*/\1 $value/" /etc/apache2/sites-enabled/wordpress.conf
 }
 
+# FIXME : We might wan't to use wordpress.conf from  docroot during development for convenience
 if [ -w /etc/apache2/sites-enabled/wordpress.conf ] ; then
-    set_apache_config 'WP_JETPACK_DEV_DEBUG'_"$WORDPRESS_JETPACK_DEV_DEBUG"
+    set_apache_config 'WP_JETPACK_DEV_DEBUG' "$WORDPRESS_JETPACK_DEV_DEBUG"
+    set_apache_config 'WP_DEBUG' "$WORDPRESS_DEBUG"
+    set_apache_config 'WP_DEBUG_LOG' "$WORDPRESS_DEBUG_LOG"
+    set_apache_config 'WP_DEBUG_DISPLAY' "$WORDPRESS_DEBUG_DISPLAY"
+    set_apache_config 'SCRIPT_DEBUG' "$WORDPRESS_SCRIPT_DEBUG"
+    set_apache_config 'SAVEQUERIES' "$WORDPRESS_SAVEQUERIES"
     set_apache_config 'WP_DB_HOST' "$WORDPRESS_DB_HOST"
     set_apache_config 'WP_DB_USER' "$WORDPRESS_DB_USER"
     set_apache_config 'WP_DB_PASS' "$WORDPRESS_DB_PASSWORD"
