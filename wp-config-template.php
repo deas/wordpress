@@ -49,7 +49,7 @@ define('WP_DEBUG', (bool) getenv('WP_DEBUG'));
 define('WP_DEBUG_LOG', (bool) getenv('WP_DEBUG_LOG')); // wp-content/debug.log
 define('WP_DEBUG_DISPLAY', (bool) getenv('WP_DEBUG_DISPLAY'));
 // Use dev versions of core JS and CSS files (only needed if you are modifying these core files)
-define('SCRIPT_DEBUG', (bool) getenv('WP_DEBUG_DISPLAY')); // -> Don't use minimized/compressed !
+define('SCRIPT_DEBUG', (bool) getenv('SCRIPT_DEBUG')); // -> Don't use minimized/compressed !
 define('SAVEQUERIES', (bool) getenv('SAVEQUERIES'));
 
 // ** MySQL settings ** //

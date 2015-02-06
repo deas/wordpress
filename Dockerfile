@@ -1,6 +1,6 @@
 FROM ubuntu:trusty
 
-RUN apt-get update && apt-get install -y apache2 curl libapache2-mod-php5 php5-curl php5-gd \
+RUN apt-get update && apt-get install -y apache2 apache2-utils curl libapache2-mod-php5 php5-curl php5-gd \
     php5-mysql php5-xdebug rsync wget && rm -rf /var/lib/apt/lists/*
 RUN a2enmod rewrite
 
@@ -23,12 +23,15 @@ RUN find "$APACHE_CONFDIR" -type f -exec sed -ri ' \
     s!^(\s*ErrorLog)\s+\S+!\1 /proc/self/fd/2!g; \
 ' '{}' ';'
 
+# We can use multiple entries!
+# The filename for the access log is relative to the ServerRoot unless it begins with a slash.
 # ErrorLog "|/usr/bin/rotatelogs -l /var/log/apache2/.../error-%Y.%m.%d.log 86400"
 # CustomLog "|/usr/bin/rotatelogs -l /var/log/apache2/.../access-%Y.%m.%d.log 86400" common
 
 # RUN rm -rf /var/www/html && mkdir /var/www/html
 # VOLUME /var/www/html
 VOLUME /usr/share/wordpress
+VOLUME /var/log/www
 WORKDIR /usr/share/wordpress
 
 ADD docker-apache.conf /etc/apache2/sites-available/wordpress.conf

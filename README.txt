@@ -28,6 +28,7 @@ docker run -it -P \
        -e "SERVICE_TAGS=tag1,tag2" \
        -e "SERVICE_REGION=mal-guggn" \
        -v /home/deas/work/projects/contentreich/contentreich-wordpress:/usr/share/wordpress:rw \
+       -v /var/log/apache2/contentreich-web1:/var/log/apache2 \
        -v /etc/localtime:/etc/localtime:ro \
        deas/cr-wordpress
 TODO:

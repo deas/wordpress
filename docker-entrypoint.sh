@@ -4,6 +4,8 @@
 # hostip=${routeparts[2]}
 # hostif=${routeparts[4]}
 
+printenv
+
 WORDPRESS_ABSPATH=`pwd`
 EXTRACT_DIR=..
 SRC_DIR=/
@@ -20,7 +22,6 @@ WORDPRESS_SAVEQUERIES=${WORDPRESS_SAVEQUERIES-"0"}
 PHP_XDEBUG_ENABLED=${PHP_XDEBUG_ENABLED-"0"}
 IMPORT_SRC=${IMPORT_SRC-"/usr/share/wordpress-import"}
 IMPORT_SQL=${IMPORT_SRC}/wordpress.sql
-
 DOCKER_HOST=`ip route show | grep ^default | awk '{print $3}'`
 
 set -e
