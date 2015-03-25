@@ -125,6 +125,14 @@ set_apache_config() {
     sed -ri "s/(SetEnv $key) .*/\1 $value/" /etc/apache2/sites-enabled/wordpress.conf
 }
 
+set_php_config() {
+    key="$1"
+    value="$2"
+    sed -ri "s/($key) *=.*/\1 = $value/" /etc/php5/apache2/php.ini
+}
+
+# set_php_config 'SMTP' "$WORDPRESS_SMTP_HOST"
+
 # FIXME : We might wan't to use wordpress.conf from  docroot during development for convenience
 if [ -w /etc/apache2/sites-enabled/wordpress.conf ] ; then
     set_apache_config 'WP_JETPACK_DEV_DEBUG' "$WORDPRESS_JETPACK_DEV_DEBUG"
@@ -147,6 +155,8 @@ xdebug.remote_enable=$PHP_XDEBUG_ENABLED
 xdebug.remote_host=$DOCKER_HOST
 EOF
 fi
+
+# /etc/php5/apache2/php.ini
 
 # allow any of these "Authentication Unique Keys and Salts." to be specified via
 # environment variables with a "WORDPRESS_" prefix (ie, "WORDPRESS_AUTH_KEY")
