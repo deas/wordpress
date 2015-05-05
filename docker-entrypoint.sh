@@ -23,6 +23,7 @@ PHP_XDEBUG_ENABLED=${PHP_XDEBUG_ENABLED-"0"}
 IMPORT_SRC=${IMPORT_SRC-"/usr/share/wordpress-import"}
 IMPORT_SQL=${IMPORT_SRC}/wordpress.sql
 DOCKER_HOST=`ip route show | grep ^default | awk '{print $3}'`
+SMTP_HOST=`{ grep smtp /etc/hosts || echo $DOCKER_HOST; } |  sed -e s,"\s.*",,g`
 
 set -e
 
@@ -183,6 +184,11 @@ done
 if [ -n "$APACHE_CHOWN_USER" -a -n "$APACHE_CHOWN_GROUP" ] ; then
     chown -R "$APACHE_CHOWN_USER:$APACHE_CHOWN_GROUP" .
 fi
+
+sed -i -e 's/.*mailhub=.*l/mailhub=smtp/' -e '/hostname=/d' /etc/ssmtp/ssmtp.conf
+#     -e 's/#rewriteDomain=/rewriteDomain=ourdomain/' \
+#     -e '/hostname=/d' \
+#     /etc/ssmtp/ssmtp.conf
 
 # https://issues.apache.org/bugzilla/show_bug.cgi?id=54519
 rm -f "${APACHE_PID_FILE}"
