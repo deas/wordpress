@@ -24,6 +24,7 @@ IMPORT_SRC=${IMPORT_SRC-"/usr/share/wordpress-import"}
 IMPORT_SQL=${IMPORT_SRC}/wordpress.sql
 DOCKER_HOST=`ip route show | grep ^default | awk '{print $3}'`
 SMTP_HOST=`{ grep smtp /etc/hosts || echo $DOCKER_HOST; } |  sed -e s,"\s.*",,g`
+SMTP_DOMAIN=${SMTP_DOMAIN-"localhost"}
 
 set -e
 
@@ -185,7 +186,7 @@ if [ -n "$APACHE_CHOWN_USER" -a -n "$APACHE_CHOWN_GROUP" ] ; then
     chown -R "$APACHE_CHOWN_USER:$APACHE_CHOWN_GROUP" .
 fi
 
-sed -i -e 's/.*mailhub=.*l/mailhub=smtp/' -e '/hostname=/d' /etc/ssmtp/ssmtp.conf
+sed -i -e 's/.*mailhub=.*l/mailhub=smtp/' -e '/hostname=/d' -e "s/.*rewriteDomain=.*/rewriteDomain=$SMTP_DOMAIN/" /etc/ssmtp/ssmtp.conf
 #     -e 's/#rewriteDomain=/rewriteDomain=ourdomain/' \
 #     -e '/hostname=/d' \
 #     /etc/ssmtp/ssmtp.conf
