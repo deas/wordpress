@@ -12,22 +12,23 @@ ENV APACHE_LOCK_DIR /var/lock/apache2
 ENV APACHE_LOG_DIR /var/log/apache2
 ENV LANG C
 
-# http adds dont cache
-# ADD https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar  /wp
-
 # Keep layers / image sizes down to a minimum
 RUN apt-get update && apt-get install -y apache2 apache2-utils curl libapache2-mod-php5 php5-curl php5-gd \
     php5-mysql php5-xdebug rsync wget ssmtp && rm -rf /var/lib/apt/lists/* && a2enmod rewrite && \
+    wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -O /wp && chmod 755 /wp && \
     mkdir -p $APACHE_RUN_DIR $APACHE_LOCK_DIR $APACHE_LOG_DIR
 
+# Most frequent changing stuff last
 ADD docker-apache.conf /etc/apache2/sites-available/wordpress.conf
 ADD wp-config-template.php /wp-config-template.php
 ADD docker-entrypoint.sh /entrypoint.sh
 ADD execute-statements-mysql.php  /execute-statements-mysql.php
 ADD rename_site.php /rename.site.php
-ADD wp-cli.phar  /wp
+# http adds dont cache
+# ADD https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar  /wp
+# ADD wp-cli.phar  /wp
 
-RUN a2dissite 000-default && a2ensite wordpress && chmod 755 /wp
+RUN a2dissite 000-default && a2ensite wordpress
 
 #    && \
 #    find "$APACHE_CONFDIR" -type f -exec sed -ri ' \

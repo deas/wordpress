@@ -4,7 +4,7 @@ docker build --rm -t deas/cr-wordpress .
 docker run -it -P \
        --name contentreich-web1 \
        --add-host=smtp:172.17.42.1 \
-       -e "WORDPRESS_HOME=/" \
+       -e "SMTP_DOMAIN=contentreich.de" \
        -e "WORDPRESS_DB_USER=wp_scratch" \
        -e "WORDPRESS_DB_NAME=wp_scratch" \
        -e "WORDPRESS_DB_PASSWORD=wp_scratch" \
@@ -18,10 +18,14 @@ docker run -it -P \
        -v /home/deas/tmp/wp-import/:/usr/share/wordpress-import:ro \
        deas/cr-wordpress
 
+# WORDPRESS_HOME value runs renaming
+#       -e "WORDPRESS_HOME=http://brc.contentreich.de/" \
+
+
 docker run -it -P \
        --name contentreich-web1 \
        --add-host=smtp:172.17.42.1 \
-       -e "WORDPRESS_HOME=http://brc.contentreich.de/" \
+       -e "SMTP_DOMAIN=contentreich.de" \
        -e "WORDPRESS_DB_USER=wp_scratch" \
        -e "WORDPRESS_DB_NAME=wp_scratch" \
        -e "WORDPRESS_DB_PASSWORD=wp_scratch" \
@@ -70,10 +74,3 @@ export WP_HOME=http://brc-dig:9876
 export WP_ABSPATH=/usr/share/wordpress
 
 php /rename.site.php
-
-
-var out = search.findNode("workspace://SpacesStore/53231639-ade5-4adf-bc12-ed78a42d36d4");
-var folder = search.findNode("workspace://SpacesStore/3249314e-1d62-4e4c-a987-1382f7b1fede");
-html.write(out.nodeRef, folder.nodeRef, "html-aggregator.ftl", false);
-
-<a href="http://brc-dig:9876/page/2" class="next">Nächste Seite</a>
