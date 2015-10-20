@@ -3,7 +3,9 @@
 # routeparts=(${defroute//;/ })
 # hostip=${routeparts[2]}
 # hostif=${routeparts[4]}
-
+#
+# FIXME: wp-config.php should 
+#
 WORDPRESS_ABSPATH=`pwd`
 EXTRACT_DIR=..
 SRC_DIR=/
@@ -57,7 +59,7 @@ if ! [ -e "${EXTRACT_DIR}/wordpress/index.php" -a -e "${EXTRACT_DIR}/wordpress/w
     current=$(curl -sSL 'http://api.wordpress.org/core/version-check/1.7/' | sed -r 's/^.*"current":"([^"]+)".*$/\1/')
     echo "Initializing vanilla Wordpress $current"
     curl -SL http://wordpress.org/wordpress-$current.tar.gz | tar -xzC ${EXTRACT_DIR}
-    cp "${SRC_DIR}/wp-config-template.php" "${EXTRACT_DIR}/wordpress/wp-config.php"
+#    cp "${SRC_DIR}/wp-config-template.php" "${EXTRACT_DIR}/wordpress/wp-config.php"
     echo >&2 "Complete! WordPress has been successfully set up"
 elif [ -e "${IMPORT_SQL}" ] ; then
     echo "Importing SQL"
@@ -67,6 +69,10 @@ elif [ -e "${IMPORT_SQL}" ] ; then
         WP_DB_NAME="$WORDPRESS_DB_NAME" WP_HOME="$WORDPRESS_HOME" WP_ABSPATH="$WORDPRESS_ABSPATH" \
                   WP_DB_USER="$WORDPRESS_DB_USER" WP_DB_PASS="$WORDPRESS_DB_PASSWORD" WP_DB_HOST="$WORDPRESS_DB_HOST" php ${SRC_DIR}/rename.site.php
     fi
+fi
+
+if ! [ -e "${EXTRACT_DIR}/wordpress/wp-config.php" ] ; then
+    cp "${SRC_DIR}/wp-config-template.php" "${EXTRACT_DIR}/wordpress/wp-config.php"
 fi
 
 #        BULLETPROOF writes this file

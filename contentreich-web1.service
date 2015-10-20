@@ -5,7 +5,7 @@ After=etcd.service
 
 [Service]
 Restart=always
-ExecStart=/usr/local/bin/systemd-docker --logs=false run --rm --add-host=smtp:172.17.42.1 -e "SMTP_DOMAIN=contentreich.de" -e "WORDPRESS_DB_USER=wp_scratch" -e "WORDPRESS_DB_NAME=wp_scratch" -e "WORDPRESS_DB_PASSWORD=wp_scratch" -e "WORDPRESS_JETPACK_DEV_DEBUG=1" -e "PHP_XDEBUG_ENABLED=1" -e "SERVICE_NAME=contentreich-web" -e "SERVICE_TAGS=tag1,tag2" -e "SERVICE_REGION=mal-guggn" -v /home/deas/work/projects/contentreich/contentreich-wordpress:/usr/share/wordpress:rw -v /var/log/apache2/contentreich-web1:/var/log/apache2 -v /etc/localtime:/etc/localtime:ro -v /run/systemd/journal/dev-log:/dev/log --name=%n deas/cr-wordpress
+ExecStart=/usr/local/bin/systemd-docker --logs=false run --rm --add-host=smtp:172.17.42.1 -e "SMTP_DOMAIN=contentreich.de" -e "WORDPRESS_DB_USER=wp_cr_loc" -e "WORDPRESS_DB_NAME=wp_cr_loc" -e "WORDPRESS_DB_PASSWORD=wp_cr_loc" -e "WORDPRESS_JETPACK_DEV_DEBUG=1" -e "PHP_XDEBUG_ENABLED=1" -e "SERVICE_NAME=contentreich-web" -e "SERVICE_TAGS=tag1,tag2" -e "SERVICE_REGION=mal-guggn" -v /home/deas/work/projects/contentreich/contentreich-wordpress:/usr/share/wordpress:rw -v /var/log/apache2/contentreich-web1:/var/log/apache2 -v /etc/localtime:/etc/localtime:ro -v /run/systemd/journal/dev-log:/dev/log --name=%n deas/cr-wordpress
 
 Type=notify
 NotifyAccess=all
