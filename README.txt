@@ -1,8 +1,9 @@
 docker build --rm -t deas/cr-wordpress .
 
-
+# WordPress gotcha - cannot use changing IP address in Browser
+# Need hostname for now
 docker run -it -P \
-       --name contentreich-web1.service \
+       --name contentreich-web.service \
        --add-host=smtp:172.17.42.1 \
        -e "SMTP_DOMAIN=contentreich.de" \
        -e "WORDPRESS_DB_USER=wp_cr_loc" \
@@ -18,10 +19,12 @@ docker run -it -P \
        -v /etc/localtime:/etc/localtime:ro \
        -v /run/systemd/journal/dev-log:/dev/log \
        deas/cr-wordpress
+
 TODO:
 _ Fix permissions -> Must be data container or external
 
-docker run -it -P \
+docker run -it \
+       -p 8501:80 \
        --name poptown-hilft.service \
        --add-host=smtp:172.17.42.1 \
        -e "SMTP_DOMAIN=contentreich.de" \
@@ -39,7 +42,8 @@ docker run -it -P \
        -v /run/systemd/journal/dev-log:/dev/log \
        deas/cr-wordpress
 
-docker run -it -P \
+docker run \
+       -p 8500:80 \
        --name wp-scratch.service \
        --add-host=smtp:172.17.42.1 \
        -e "SMTP_DOMAIN=contentreich.de" \

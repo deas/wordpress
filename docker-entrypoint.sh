@@ -4,7 +4,7 @@
 # hostip=${routeparts[2]}
 # hostif=${routeparts[4]}
 #
-# FIXME: wp-config.php should 
+# FIXME: wp-config.php should
 #
 WORDPRESS_ABSPATH=`pwd`
 EXTRACT_DIR=..
@@ -102,6 +102,7 @@ set_apache_config() {
     key="$1"
     value="$2"
     sed -ri "s/(SetEnv $key) .*/\1 $value/" /etc/apache2/sites-enabled/wordpress.conf
+    sed -ri "s/(SetEnv $key) .*/\1 $value/" /etc/apache2/sites-enabled/wordpress-ssl.conf
 }
 
 set_php_config() {
@@ -179,4 +180,39 @@ sed -i -e 's/.*mailhub=.*l/mailhub=smtp/' -e '/hostname=/d' -e "s/.*rewriteDomai
 rm -f "${APACHE_PID_FILE}"
 # rm -f /var/run/apache2/apache2.pid
 
+
+# From https://github.com/MarvAmBass/docker-apache2-ssl-secure
+if [ ! -z ${HSTS_HEADERS_ENABLE+x} ]
+then
+  echo ">> HSTS Headers enabled"
+  sed -i 's/#Header add Strict-Transport-Security/Header add Strict-Transport-Security/g' /etc/apache2/sites-enabled/001-default-ssl
+
+  if [ ! -z ${HSTS_HEADERS_ENABLE_NO_SUBDOMAINS+x} ]
+  then
+    echo ">> HSTS Headers configured without includeSubdomains"
+    sed -i 's/; includeSubdomains//g' /etc/apache2/sites-enabled/001-default-ssl
+  fi
+else
+  echo ">> HSTS Headers disabled"
+fi
+
+if [ ! -e "/etc/apache2/external/cert.pem" ] || [ ! -e "/etc/apache2/external/key.pem" ]
+then
+  echo ">> generating self signed cert"
+  openssl req -x509 -newkey rsa:4086 \
+  -subj "/C=XX/ST=XXXX/L=XXXX/O=XXXX/CN=localhost" \
+  -keyout "/etc/apache2/external/key.pem" \
+  -out "/etc/apache2/external/cert.pem" \
+  -days 3650 -nodes -sha256
+fi
+
+if stat -t ${APACHE_CONFDIR}/external/*.conf >/dev/null 2>&1
+then
+    cp ${APACHE_CONFDIR}/external/*.conf ${APACHE_CONFDIR}/sites-enabled/
+else
+    echo "Got no external configuration"
+fi
+
+echo ">> exec docker CMD"
+echo "$@"
 exec "$@"
