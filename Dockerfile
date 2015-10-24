@@ -62,7 +62,9 @@ WORKDIR /usr/share/wordpress
 # RUN a2dissite 000-default && a2ensite wordpress && chmod 755 /wp
 
 ENTRYPOINT ["/entrypoint.sh"]
-EXPOSE 80
+# We use --expose 80 at runtime
+# No way to get rid of EXPOSE setting from here
+# EXPOSE 80
 # FIXME two ports do not yet play with docker-discover
 #    server bruce:contentreich-web.service:443 172.17.0.24:443 check inter 2s rise 3 fall 2
 #    server bruce:contentreich-web.service:80 172.17.0.24:80 check inter 2s rise 3 fall 2
