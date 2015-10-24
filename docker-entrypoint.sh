@@ -25,8 +25,30 @@ IMPORT_SQL=${IMPORT_SRC}/wordpress.sql
 DOCKER_HOST=`ip route show | grep ^default | awk '{print $3}'`
 SMTP_HOST=`{ grep smtp /etc/hosts || echo $DOCKER_HOST; } |  sed -e s,"\s.*",,g`
 SMTP_DOMAIN=${SMTP_DOMAIN-"localhost"}
+HTTP=${HTTP-"y"}
+HTTPS=${HTTPS-"n"}
 
 set -e
+
+# function print_help {
+#     cat <<EOF
+# Usage $0
+# Download and setup alfresco
+#   -v                  Alfresco version, e.g. "4.2.f"
+#   -h                  This help
+# EOF
+# }
+
+# FIXME - We should really move more (but not all swiches to commandline args)
+# Not quite, will be clumsy to override command from the cli
+# while getopts "hH:S:" opt; do
+#     case "$opt" in
+#         H) HTTP=$OPTARG ;;
+#         S) HTTPS=$OPTARG ;;
+#         # h) print_help;exit 2 ;;
+#     esac
+# done
+
 
 if [ -z "$MYSQL_PORT_3306_TCP" ]; then
     # echo >&2 'error: missing MYSQL_PORT_3306_TCP environment variable'
@@ -101,8 +123,8 @@ set_config() {
 set_apache_config() {
     key="$1"
     value="$2"
-    sed -ri "s/(SetEnv $key) .*/\1 $value/" /etc/apache2/sites-enabled/wordpress.conf
-    sed -ri "s/(SetEnv $key) .*/\1 $value/" /etc/apache2/sites-enabled/wordpress-ssl.conf
+    sed -ri "s/(SetEnv $key) .*/\1 $value/" /etc/apache2/sites-available/wordpress.conf
+    sed -ri "s/(SetEnv $key) .*/\1 $value/" /etc/apache2/sites-available/wordpress-ssl.conf
 }
 
 set_php_config() {
@@ -114,20 +136,21 @@ set_php_config() {
 # set_php_config 'SMTP' "$WORDPRESS_SMTP_HOST"
 
 # FIXME : We might wan't to use wordpress.conf from  docroot during development for convenience
-if [ -w /etc/apache2/sites-enabled/wordpress.conf ] ; then
-    echo "Setting up apache virtual host"
-    set_apache_config 'WP_JETPACK_DEV_DEBUG' "$WORDPRESS_JETPACK_DEV_DEBUG"
-    set_apache_config 'WP_DEBUG' "$WORDPRESS_DEBUG"
-    set_apache_config 'WP_DEBUG_LOG' "$WORDPRESS_DEBUG_LOG"
-    set_apache_config 'WP_DEBUG_DISPLAY' "$WORDPRESS_DEBUG_DISPLAY"
-    set_apache_config 'SCRIPT_DEBUG' "$WORDPRESS_SCRIPT_DEBUG"
-    set_apache_config 'SAVEQUERIES' "$WORDPRESS_SAVEQUERIES"
-    set_apache_config 'WP_DB_HOST' "$WORDPRESS_DB_HOST"
-    set_apache_config 'WP_DB_USER' "$WORDPRESS_DB_USER"
-    set_apache_config 'WP_DB_PASS' "$WORDPRESS_DB_PASSWORD"
-    set_apache_config 'WP_DB_NAME' "$WORDPRESS_DB_NAME"
+# No we will implement decent external config pull in
+# if [ -w /etc/apache2/sites-enabled/wordpress.conf ] ; then
+echo "Setting up apache virtual host"
+set_apache_config 'WP_JETPACK_DEV_DEBUG' "$WORDPRESS_JETPACK_DEV_DEBUG"
+set_apache_config 'WP_DEBUG' "$WORDPRESS_DEBUG"
+set_apache_config 'WP_DEBUG_LOG' "$WORDPRESS_DEBUG_LOG"
+set_apache_config 'WP_DEBUG_DISPLAY' "$WORDPRESS_DEBUG_DISPLAY"
+set_apache_config 'SCRIPT_DEBUG' "$WORDPRESS_SCRIPT_DEBUG"
+set_apache_config 'SAVEQUERIES' "$WORDPRESS_SAVEQUERIES"
+set_apache_config 'WP_DB_HOST' "$WORDPRESS_DB_HOST"
+set_apache_config 'WP_DB_USER' "$WORDPRESS_DB_USER"
+set_apache_config 'WP_DB_PASS' "$WORDPRESS_DB_PASSWORD"
+set_apache_config 'WP_DB_NAME' "$WORDPRESS_DB_NAME"
 #    set_apache_config 'WP_ABSPATH' "$WORDPRESS_ABSPATH"
-fi
+# fi
 
 if [ -w /etc/php5/mods-available/xdebug.ini ] ; then
     echo "Setting up xdebug.ini"
@@ -211,6 +234,13 @@ then
     cp ${APACHE_CONFDIR}/external/*.conf ${APACHE_CONFDIR}/sites-enabled/
 else
     echo "Got no external configuration"
+fi
+
+if [ ${HTTP} == "y" ] ; then
+    a2ensite wordpress
+fi
+if [ ${HTTPS} == "y" ] ; then
+    a2ensite wordpress-ssl
 fi
 
 echo ">> exec docker CMD"

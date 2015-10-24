@@ -37,7 +37,8 @@ ADD rename_site.php /rename.site.php
 # ADD https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar  /wp
 # ADD wp-cli.phar  /wp
 
-RUN a2dissite 000-default && a2ensite wordpress && a2ensite wordpress-ssl
+RUN a2dissite 000-default
+# && a2ensite wordpress && a2ensite wordpress-ssl
 
 #    && \
 #    find "$APACHE_CONFDIR" -type f -exec sed -ri ' \
