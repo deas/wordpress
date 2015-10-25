@@ -23,9 +23,13 @@ docker run -it -P \
 TODO:
 _ Fix permissions -> Must be data container or external
 
+# Gotcha! Name does not end in .service so we have short names in dnsdock !
+#
+# wpscratch.cr-wordpress.docker
+# Not really systemd --name  %n friendly
+#
 docker run -it \
-       -p 8501:80 \
-       --name poptown-hilft.service \
+       --name ph \
        --add-host=smtp:172.17.42.1 \
        -e "SMTP_DOMAIN=contentreich.de" \
        -e "WORDPRESS_DB_USER=wp_poptown" \
@@ -33,9 +37,7 @@ docker run -it \
        -e "WORDPRESS_DB_PASSWORD=wp_poptown" \
        -e "WORDPRESS_JETPACK_DEV_DEBUG=1" \
        -e "PHP_XDEBUG_ENABLED=1" \
-       -e "SERVICE_NAME=poptown-web" \
-       -e "SERVICE_TAGS=tag1,tag2" \
-       -e "SERVICE_REGION=mal-guggn" \
+       -e "HTTP=n" -e "HTTPS=y" \
        -v /home/deas/work/projects/contentreich/poptown-hilft:/usr/share/wordpress:rw \
        -v /var/log/apache2/poptown-hilft:/var/log/apache2 \
        -v /etc/localtime:/etc/localtime:ro \
@@ -43,8 +45,7 @@ docker run -it \
        deas/cr-wordpress
 
 docker run \
-       -p 8500:80 \
-       --name wp-scratch.service \
+       --name wpscratch \
        --add-host=smtp:172.17.42.1 \
        -e "SMTP_DOMAIN=contentreich.de" \
        -e "WORDPRESS_DB_USER=wp_scratch" \
@@ -52,9 +53,6 @@ docker run \
        -e "WORDPRESS_DB_PASSWORD=wp_scratch" \
        -e "WORDPRESS_JETPACK_DEV_DEBUG=1" \
        -e "PHP_XDEBUG_ENABLED=1" \
-       -e "SERVICE_NAME=wp-scratch" \
-       -e "SERVICE_TAGS=tag1,tag2" \
-       -e "SERVICE_REGION=mal-guggn" \
        -v /home/deas/work/projects/contentreich/wp_scratch:/usr/share/wordpress:rw \
        -v /var/log/apache2/wp_scratch:/var/log/apache2 \
        -v /etc/localtime:/etc/localtime:ro \
