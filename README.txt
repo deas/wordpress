@@ -18,7 +18,7 @@ docker run -it -P \
        -v /var/log/apache2/contentreich-web1:/var/log/apache2 \
        -v /etc/localtime:/etc/localtime:ro \
        -v /run/systemd/journal/dev-log:/dev/log \
-       deas/cr-wordpress
+       deas/cr-wordpress-php7
 
 TODO:
 _ Fix permissions -> Must be data container or external

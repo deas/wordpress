@@ -127,11 +127,11 @@ set_apache_config() {
     sed -ri "s/(SetEnv $key) .*/\1 $value/" /etc/apache2/sites-available/wordpress-ssl.conf
 }
 
-set_php_config() {
-    key="$1"
-    value="$2"
-    sed -ri "s/($key) *=.*/\1 = $value/" /etc/php5/apache2/php.ini
-}
+# set_php_config() {
+#     key="$1"
+#     value="$2"
+#     sed -ri "s/($key) *=.*/\1 = $value/" /etc/php5/apache2/php.ini
+# }
 
 # set_php_config 'SMTP' "$WORDPRESS_SMTP_HOST"
 
@@ -152,16 +152,18 @@ set_apache_config 'WP_DB_NAME' "$WORDPRESS_DB_NAME"
 #    set_apache_config 'WP_ABSPATH' "$WORDPRESS_ABSPATH"
 # fi
 
-if [ -w /etc/php5/mods-available/xdebug.ini ] ; then
+# xdebug-2.4.0 supports PHP7 (boom!)
+if grep xdebug.so /usr/local/etc/php/php.ini >/dev/null ; then
     echo "Setting up xdebug.ini"
-    cat > /etc/php5/mods-available/xdebug.ini <<EOF
-zend_extension=xdebug.so
+    cat > /usr/local/etc/php/conf.d/xdebug.ini <<EOF
 xdebug.remote_enable=$PHP_XDEBUG_ENABLED
+xdebug.remote_autostart=0
+xdebug.remote_connect_back=1
+xdebug.remote_port=9000
 xdebug.remote_host=$DOCKER_HOST
+xdebug.remote_log=/tmp/php5-xdebug.log
 EOF
 fi
-
-# /etc/php5/apache2/php.ini
 
 # allow any of these "Authentication Unique Keys and Salts." to be specified via
 # environment variables with a "WORDPRESS_" prefix (ie, "WORDPRESS_AUTH_KEY")

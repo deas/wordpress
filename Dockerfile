@@ -1,4 +1,4 @@
-FROM ubuntu:trusty
+FROM php:7.0-apache
 
 # copy a few things from apache's init script that it requires to be setup
 ENV LANG C.UTF-8
@@ -13,18 +13,46 @@ ENV APACHE_LOCK_DIR /var/lock/apache2
 ENV APACHE_LOG_DIR /var/log/apache2
 ENV LANG C
 
-# Keep layers / image sizes down to a minimum
-RUN apt-get update && apt-get install -y apache2 apache2-utils curl libapache2-mod-php5 php5-curl php5-gd \
-    php5-mysql php5-xdebug rsync wget ssmtp openssl && rm -rf /var/lib/apt/lists/* && \
-    a2enmod rewrite && a2enmod ssl && a2enmod headers && \
-    sed -i 's/^ServerSignature/#ServerSignature/g' /etc/apache2/conf-enabled/security.conf; \
-    sed -i 's/^ServerTokens/#ServerTokens/g' /etc/apache2/conf-enabled/security.conf; \
-    echo "ServerSignature Off" >> /etc/apache2/conf-enabled/security.conf; \
-    echo "ServerTokens Prod" >> /etc/apache2/conf-enabled/security.conf; \
-    wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -O /wp && chmod 755 /wp && \
-    echo "SSLProtocol ALL -SSLv2 -SSLv3" >> /etc/apache2/apache2.conf &&  \
-    mkdir -p $APACHE_RUN_DIR $APACHE_LOCK_DIR $APACHE_LOG_DIR && \
-    mkdir -p ${APACHE_CONFDIR}/external
+# install the PHP extensions we need
+# curl
+RUN apt-get update && apt-get install -y libpng12-dev libjpeg-dev wget ssmtp openssl \
+        && rm -rf /var/lib/apt/lists/* \
+        && docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
+        && docker-php-ext-install gd mysqli opcache \
+        && a2enmod rewrite && a2enmod ssl && a2enmod headers && a2enmod expires \
+        && a2enconf security \
+        && sed -i 's/^ServerSignature/#ServerSignature/g' /etc/apache2/conf-enabled/security.conf \
+        && sed -i 's/^ServerTokens/#ServerTokens/g' /etc/apache2/conf-enabled/security.conf \
+        && echo "ServerSignature Off" >> /etc/apache2/conf-enabled/security.conf \
+        && echo "ServerTokens Prod" >> /etc/apache2/conf-enabled/security.conf \
+        && wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -O /wp && chmod 755 /wp \
+        && echo "SSLProtocol ALL -SSLv2 -SSLv3" >> /etc/apache2/apache2.conf \
+        && mkdir -p $APACHE_RUN_DIR $APACHE_LOCK_DIR $APACHE_LOG_DIR \
+        && mkdir -p ${APACHE_CONFDIR}/external
+
+RUN mkdir ~/software && \
+    cd  ~/software/ && \
+    apt-get install -y wget && \
+    wget http://xdebug.org/files/xdebug-2.4.0.tgz && \
+    tar -xvzf xdebug-2.4.0.tgz && \
+    cd xdebug-2.4.0 && \
+    phpize && \
+    ./configure && \
+    make && \
+    cp modules/xdebug.so /usr/local/lib/php/extensions/no-debug-non-zts-20151012 && \
+    echo "zend_extension = /usr/local/lib/php/extensions/no-debug-non-zts-20151012/xdebug.so" >>  /usr/local/etc/php/php.ini && \
+    cd ~ && rm -rf software
+
+# set recommended PHP.ini settings
+# see https://secure.php.net/manual/en/opcache.installation.php
+RUN { \
+                echo 'opcache.memory_consumption=128'; \
+                echo 'opcache.interned_strings_buffer=8'; \
+                echo 'opcache.max_accelerated_files=4000'; \
+                echo 'opcache.revalidate_freq=60'; \
+                echo 'opcache.fast_shutdown=1'; \
+                echo 'opcache.enable_cli=1'; \
+        } > /usr/local/etc/php/conf.d/opcache-recommended.ini
 
 # Most frequent changing stuff last
 ADD docker-apache.conf /etc/apache2/sites-available/wordpress.conf
@@ -59,7 +87,7 @@ VOLUME /usr/share/wordpress
 VOLUME /var/log/www
 WORKDIR /usr/share/wordpress
 
-# RUN a2dissite 000-default && a2ensite wordpress && chmod 755 /wp
+### RUN a2dissite 000-default && a2ensite wordpress && chmod 755 /wp
 
 ENTRYPOINT ["/entrypoint.sh"]
 # We use --expose 80 at runtime
@@ -70,4 +98,3 @@ ENTRYPOINT ["/entrypoint.sh"]
 #    server bruce:contentreich-web.service:80 172.17.0.24:80 check inter 2s rise 3 fall 2
 # EXPOSE 443
 CMD ["apache2", "-DFOREGROUND"]
-# CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
