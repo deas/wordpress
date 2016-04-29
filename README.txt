@@ -1,3 +1,8 @@
+# Renaming DB values from within the container
+WP_DB_NAME=wp_cr_loc WP_HOME=http://brc.contentreich.de/ WP_ABSPATH=/usr/share/wordpress \
+    WP_DB_USER=wp_cr_loc WP_DB_PASS=wp_cr_loc WP_DB_HOST=172.17.42.1 php ./rename_site.php
+
+
 docker build --rm -t deas/cr-wordpress .
 
 # WordPress gotcha - cannot use changing IP address in Browser
@@ -18,7 +23,7 @@ docker run -it -P \
        -v /var/log/apache2/contentreich-web1:/var/log/apache2 \
        -v /etc/localtime:/etc/localtime:ro \
        -v /run/systemd/journal/dev-log:/dev/log \
-       deas/cr-wordpress-php7
+       deas/cr-wordpress
 
 TODO:
 _ Fix permissions -> Must be data container or external

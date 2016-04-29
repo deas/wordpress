@@ -60,7 +60,7 @@ ADD docker-apache-ssl.conf /etc/apache2/sites-available/wordpress-ssl.conf
 ADD wp-config-template.php /wp-config-template.php
 ADD docker-entrypoint.sh /entrypoint.sh
 ADD execute-statements-mysql.php  /execute-statements-mysql.php
-ADD rename_site.php /rename.site.php
+ADD rename_site.php /rename_site.php
 # http adds dont cache
 # ADD https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar  /wp
 # ADD wp-cli.phar  /wp
