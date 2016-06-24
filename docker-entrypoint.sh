@@ -28,7 +28,7 @@ SMTP_DOMAIN=${SMTP_DOMAIN-"localhost"}
 HTTP=${HTTP-"y"}
 HTTPS=${HTTPS-"n"}
 
-set -e
+set -xe
 
 # function print_help {
 #     cat <<EOF
@@ -245,6 +245,15 @@ if [ ${HTTPS} == "y" ] ; then
     a2ensite wordpress-ssl
 fi
 
-echo ">> exec docker CMD"
-echo "$@"
+# Dev goodness
+if [ -n "${WWW_UID}" ] ; then
+    usermod -u ${WWW_UID} www-data
+fi
+
+if [ -n "${WWW_GID}" ] ; then
+    groupmod -g ${WWW_GID} www-data
+fi
+
+# echo ">> exec docker CMD"
+# echo "$@"
 exec "$@"
