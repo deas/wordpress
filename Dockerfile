@@ -15,6 +15,9 @@ ENV LANG C
 
 # install the PHP extensions we need
 # curl
+#
+# And pagespeed, although we disable it
+# https://developers.google.com/speed/pagespeed/module/download
 RUN apt-get update && apt-get install -y libpng12-dev libjpeg-dev wget ssmtp openssl \
         && rm -rf /var/lib/apt/lists/* \
         && docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
@@ -26,22 +29,23 @@ RUN apt-get update && apt-get install -y libpng12-dev libjpeg-dev wget ssmtp ope
         && echo "ServerSignature Off" >> /etc/apache2/conf-enabled/security.conf \
         && echo "ServerTokens Prod" >> /etc/apache2/conf-enabled/security.conf \
         && wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -O /wp && chmod 755 /wp \
+        && wget https://dl-ssl.google.com/dl/linux/direct/mod-pagespeed-stable_current_amd64.deb && dpkg -i mod-pagespeed-stable_current_amd64.deb && rm mod-pagespeed-stable_current_amd64.deb \
         && echo "SSLProtocol ALL -SSLv2 -SSLv3" >> /etc/apache2/apache2.conf \
         && mkdir -p $APACHE_RUN_DIR $APACHE_LOCK_DIR $APACHE_LOG_DIR \
         && mkdir -p ${APACHE_CONFDIR}/external
 
 RUN mkdir ~/software && \
-    cd  ~/software/ && \
-    apt-get install -y wget && \
-    wget http://xdebug.org/files/xdebug-2.4.0.tgz && \
-    tar -xvzf xdebug-2.4.0.tgz && \
-    cd xdebug-2.4.0 && \
-    phpize && \
-    ./configure && \
-    make && \
-    cp modules/xdebug.so /usr/local/lib/php/extensions/no-debug-non-zts-20151012 && \
-    echo "zend_extension = /usr/local/lib/php/extensions/no-debug-non-zts-20151012/xdebug.so" >>  /usr/local/etc/php/php.ini && \
-    cd ~ && rm -rf software
+    && cd  ~/software/ \
+    && wget http://xdebug.org/files/xdebug-2.4.0.tgz \
+    && tar -xvzf xdebug-2.4.0.tgz \
+    && cd xdebug-2.4.0 \
+    && phpize \
+    && ./configure \
+    && make \
+    && cp modules/xdebug.so /usr/local/lib/php/extensions/no-debug-non-zts-20151012 \
+    && echo "zend_extension = /usr/local/lib/php/extensions/no-debug-non-zts-20151012/xdebug.so" >>  /usr/local/etc/php/php.ini \
+    && cd ~ && rm -rf software \
+    && a2dismod pagespeed
 
 # set recommended PHP.ini settings
 # see https://secure.php.net/manual/en/opcache.installation.php
