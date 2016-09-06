@@ -121,6 +121,33 @@ docker run -it -P \
        -p 8765:80 \
        deas/cr-wordpress
 
+docker run -it \
+       --name robvegas \
+       --add-host=smtp:172.17.42.1 \
+       -e "SMTP_DOMAIN=contentreich.de" \
+       -e "WORDPRESS_DB_USER=wp_scratch" \
+       -e "WORDPRESS_DB_NAME=wp_scratch" \
+       -e "WORDPRESS_DB_PASSWORD=wp_scratch" \
+       -e "WORDPRESS_JETPACK_DEV_DEBUG=1" \
+       -e "PHP_XDEBUG_ENABLED=1" \
+       -v /home/deas/work/projects/robvegas.de/htdocs:/usr/share/wordpress:rw \
+       -v /etc/localtime:/etc/localtime:ro \
+       -v /run/systemd/journal/dev-log:/dev/log \
+       deas/cr-wordpress
+
+docker run -it -d \
+       --net=host \
+       --name robvegas \
+       -e "SMTP_DOMAIN=robvegas.de" \
+       -e "WORDPRESS_DB_USER=robvegas2" \
+       -e "WORDPRESS_DB_NAME=robvegas2" \
+       -e "WORDPRESS_DB_PASSWORD=WeX7PXzyjXPbe7Zb" \
+       -e "WORDPRESS_DB_HOST=127.0.0.1" \
+       -v /local/sites/www.robvegas.de/htdocs:/usr/share/wordpress:rw \
+       -v /etc/localtime:/etc/localtime:ro \
+       -v /run/systemd/journal/dev-log:/dev/log \
+       deas/cr-wordpress
+
 
 www.digiheads.de
 digihea-brc:9876
@@ -140,3 +167,43 @@ export WP_HOME=http://brc-dig:9876
 export WP_ABSPATH=/usr/share/wordpress
 
 php /rename.site.php
+
+
+
+
+# TODO: works, execept that we don't have a replacement for --add-host yet
+docker service create --replicas 1 \
+       -e "SMTP_DOMAIN=contentreich.de" \
+       -e "WORDPRESS_DB_USER=wp_cr_loc" \
+       -e "WORDPRESS_DB_NAME=wp_cr_loc" \
+       -e "WORDPRESS_DB_PASSWORD=wp_cr_loc" \
+       -e "WORDPRESS_JETPACK_DEV_DEBUG=1" \
+       -e "PHP_XDEBUG_ENABLED=1" \
+       -e "SERVICE_NAME=contentreich-web" \
+       -e "SERVICE_TAGS=tag1,tag2" \
+       -e "SERVICE_REGION=mal-guggn" \
+       --mount type=bind,src=/home/deas/work/projects/contentreich/contentreich-wordpress,dst=/usr/share/wordpress \
+       --mount type=bind,src=/var/log/apache2/contentreich-web1,dst=/var/log/apache2 \
+       --mount type=bind,src=/etc/localtime,dst=/etc/localtime,readonly \
+       --mount type=bind,src=/run/systemd/journal/dev-log,dst=/dev/log \
+       -p 80:80 \
+       --name contentreich-web \
+       deas/cr-wordpress
+
+# ping docker.com
+
+       --add-host=smtp:172.17.42.1 \
+       -e "SMTP_DOMAIN=contentreich.de" \
+       -e "WORDPRESS_DB_USER=wp_cr_loc" \
+       -e "WORDPRESS_DB_NAME=wp_cr_loc" \
+       -e "WORDPRESS_DB_PASSWORD=wp_cr_loc" \
+       -e "WORDPRESS_JETPACK_DEV_DEBUG=1" \
+       -e "PHP_XDEBUG_ENABLED=1" \
+       -e "SERVICE_NAME=contentreich-web" \
+       -e "SERVICE_TAGS=tag1,tag2" \
+       -e "SERVICE_REGION=mal-guggn" \
+       -v /home/deas/work/projects/contentreich/contentreich-wordpress:/usr/share/wordpress:rw \
+       -v /var/log/apache2/contentreich-web1:/var/log/apache2 \
+       -v /etc/localtime:/etc/localtime:ro \
+       -v /run/systemd/journal/dev-log:/dev/log \
+       deas/cr-wordpress
