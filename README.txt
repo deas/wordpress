@@ -182,6 +182,8 @@ docker service create --replicas 1 \
        -e "SERVICE_NAME=contentreich-web" \
        -e "SERVICE_TAGS=tag1,tag2" \
        -e "SERVICE_REGION=mal-guggn" \
+       -e "WWW_UID=1000" \
+       -e "WWW_GID=1000" \
        --mount type=bind,src=/home/deas/work/projects/contentreich/contentreich-wordpress,dst=/usr/share/wordpress \
        --mount type=bind,src=/var/log/apache2/contentreich-web1,dst=/var/log/apache2 \
        --mount type=bind,src=/etc/localtime,dst=/etc/localtime,readonly \
