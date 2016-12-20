@@ -1,5 +1,5 @@
 FROM php:7.0-apache
-
+# TODO: php:7.1-apache does not work with xdebug ... for some reason
 # copy a few things from apache's init script that it requires to be setup
 ENV LANG C.UTF-8
 ENV APACHE_CONFDIR /etc/apache2
@@ -34,11 +34,11 @@ RUN apt-get update && apt-get install -y libpng12-dev libjpeg-dev wget ssmtp ope
         && mkdir -p $APACHE_RUN_DIR $APACHE_LOCK_DIR $APACHE_LOG_DIR \
         && mkdir -p ${APACHE_CONFDIR}/external
 
-RUN mkdir ~/software && \
+RUN mkdir ~/software \
     && cd  ~/software/ \
-    && wget http://xdebug.org/files/xdebug-2.4.0.tgz \
-    && tar -xvzf xdebug-2.4.0.tgz \
-    && cd xdebug-2.4.0 \
+    && wget http://xdebug.org/files/xdebug-2.5.0.tgz \
+    && tar -xvzf xdebug-2.5.0.tgz \
+    && cd xdebug-2.5.0 \
     && phpize \
     && ./configure \
     && make \

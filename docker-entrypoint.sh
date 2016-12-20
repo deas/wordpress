@@ -158,10 +158,12 @@ if grep xdebug.so /usr/local/etc/php/php.ini >/dev/null ; then
     cat > /usr/local/etc/php/conf.d/xdebug.ini <<EOF
 xdebug.remote_enable=$PHP_XDEBUG_ENABLED
 xdebug.remote_autostart=0
-xdebug.remote_connect_back=1
+; xdebug.remote_connect_back=0
+; does not work with docker services
+xdebug.remote_connect_back=0
 xdebug.remote_port=9000
 xdebug.remote_host=$DOCKER_HOST
-xdebug.remote_log=/tmp/php5-xdebug.log
+xdebug.remote_log=/tmp/php-xdebug.log
 EOF
 fi
 
