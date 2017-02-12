@@ -25,6 +25,28 @@ docker run -it -P \
        -v /run/systemd/journal/dev-log:/dev/log \
        deas/cr-wordpress
 
+#
+# FPM - port 19000 on host
+#
+docker run -it \
+       --restart=unless-stopped \
+       -p 19000:9000 \
+       --name contentreich-web-fpm.service \
+       --add-host=smtp:172.17.42.1 \
+       -e "SMTP_DOMAIN=contentreich.de" \
+       -e "WORDPRESS_DB_USER=wp_cr_loc" \
+       -e "WORDPRESS_DB_NAME=wp_cr_loc" \
+       -e "WORDPRESS_DB_PASSWORD=wp_cr_loc" \
+       -e "WORDPRESS_JETPACK_DEV_DEBUG=1" \
+       -e "PHP_XDEBUG_ENABLED=1" \
+       -e "SERVICE_NAME=contentreich-web" \
+       -e "SERVICE_TAGS=tag1,tag2" \
+       -e "SERVICE_REGION=mal-guggn" \
+       -v /home/deas/work/projects/contentreich/contentreich-wordpress:/usr/share/wordpress:rw \
+       -v /etc/localtime:/etc/localtime:ro \
+       -v /run/systemd/journal/dev-log:/dev/log \
+       deas/cr-wordpress:7.0-fpm
+
 TODO:
 _ Fix permissions -> Must be data container or external
 
@@ -83,6 +105,7 @@ docker run -it -P \
        -v /home/deas/tmp/wp-import/:/usr/share/wordpress-import:ro \
        deas/cr-wordpress
 
+
 # WORDPRESS_HOME value runs renaming
 #       -e "WORDPRESS_HOME=http://brc.contentreich.de/" \
 
@@ -119,33 +142,6 @@ docker run -it -P \
        -v /etc/localtime:/etc/localtime:ro \
        -v /run/systemd/journal/dev-log:/dev/log \
        -p 8765:80 \
-       deas/cr-wordpress
-
-docker run -it \
-       --name robvegas \
-       --add-host=smtp:172.17.42.1 \
-       -e "SMTP_DOMAIN=contentreich.de" \
-       -e "WORDPRESS_DB_USER=wp_scratch" \
-       -e "WORDPRESS_DB_NAME=wp_scratch" \
-       -e "WORDPRESS_DB_PASSWORD=wp_scratch" \
-       -e "WORDPRESS_JETPACK_DEV_DEBUG=1" \
-       -e "PHP_XDEBUG_ENABLED=1" \
-       -v /home/deas/work/projects/robvegas.de/htdocs:/usr/share/wordpress:rw \
-       -v /etc/localtime:/etc/localtime:ro \
-       -v /run/systemd/journal/dev-log:/dev/log \
-       deas/cr-wordpress
-
-docker run -it -d \
-       --net=host \
-       --name robvegas \
-       -e "SMTP_DOMAIN=robvegas.de" \
-       -e "WORDPRESS_DB_USER=robvegas2" \
-       -e "WORDPRESS_DB_NAME=robvegas2" \
-       -e "WORDPRESS_DB_PASSWORD=WeX7PXzyjXPbe7Zb" \
-       -e "WORDPRESS_DB_HOST=127.0.0.1" \
-       -v /local/sites/www.robvegas.de/htdocs:/usr/share/wordpress:rw \
-       -v /etc/localtime:/etc/localtime:ro \
-       -v /run/systemd/journal/dev-log:/dev/log \
        deas/cr-wordpress
 
 
