@@ -43,6 +43,8 @@ docker run -it \
        -e "SERVICE_NAME=contentreich-web" \
        -e "SERVICE_TAGS=tag1,tag2" \
        -e "SERVICE_REGION=mal-guggn" \
+       -e "WWW_UID=1000" \
+       -e "WWW_GID=1000" \
        -v /home/deas/work/projects/contentreich/contentreich-wordpress:/usr/share/wordpress:rw \
        -v /etc/localtime:/etc/localtime:ro \
        -v /run/systemd/journal/dev-log:/dev/log \
