@@ -34,10 +34,11 @@ docker run -it \
        --name contentreich-web-fpm.service \
        --add-host=smtp:172.17.42.1 \
        -e "SMTP_DOMAIN=contentreich.de" \
-       -e "WORDPRESS_DB_USER=wp_cr_loc" \
-       -e "WORDPRESS_DB_NAME=wp_cr_loc" \
-       -e "WORDPRESS_DB_PASSWORD=wp_cr_loc" \
-       -e "WORDPRESS_JETPACK_DEV_DEBUG=1" \
+       -e "WP_DB_HOST=172.17.42.1" \
+       -e "WP_DB_USER=wp_cr_loc" \
+       -e "WP_DB_NAME=wp_cr_loc" \
+       -e "WP_DB_PASS=wp_cr_loc" \
+       -e "WP_JETPACK_DEV_DEBUG=1" \
        -e "PHP_XDEBUG_ENABLED=1" \
        -e "SERVICE_NAME=contentreich-web" \
        -e "SERVICE_TAGS=tag1,tag2" \

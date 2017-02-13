@@ -13,12 +13,12 @@ SRC_DIR=/
 #  Test overwrites
 # . test_env.sh
 # : ${WORDPRESS_JETPACK_DEV_DEBUG:=1}
-WORDPRESS_JETPACK_DEV_DEBUG=${WORDPRESS_JETPACK_DEV_DEBUG-"1"}
-WORDPRESS_DEBUG=${WORDPRESS_DEBUG-"0"}
-WORDPRESS_DEBUG_LOG=${WORDPRESS_DEBUG_LOG-"0"}
-WORDPRESS_DEBUG_DISPLAY=${WORDPRESS_DEBUG_DISPLAY-"0"}
-WORDPRESS_SCRIPT_DEBUG=${WORDPRESS_SCRIPT_DEBUG-"0"}
-WORDPRESS_SAVEQUERIES=${WORDPRESS_SAVEQUERIES-"0"}
+# WORDPRESS_JETPACK_DEV_DEBUG=${WORDPRESS_JETPACK_DEV_DEBUG-"1"}
+# WORDPRESS_DEBUG=${WORDPRESS_DEBUG-"0"}
+# WORDPRESS_DEBUG_LOG=${WORDPRESS_DEBUG_LOG-"0"}
+# WORDPRESS_DEBUG_DISPLAY=${WORDPRESS_DEBUG_DISPLAY-"0"}
+# WORDPRESS_SCRIPT_DEBUG=${WORDPRESS_SCRIPT_DEBUG-"0"}
+# WORDPRESS_SAVEQUERIES=${WORDPRESS_SAVEQUERIES-"0"}
 PHP_XDEBUG_ENABLED=${PHP_XDEBUG_ENABLED-"0"}
 IMPORT_SRC=${IMPORT_SRC-"/usr/share/wordpress-import"}
 IMPORT_SQL=${IMPORT_SRC}/wordpress.sql
@@ -56,22 +56,22 @@ if [ -z "$MYSQL_PORT_3306_TCP" ]; then
     # exit 1
     # Host/testing tweak
     if ip -B link show docker0 >/dev/null 2>&1 ; then
-        WORDPRESS_DB_HOST=localhost
+        WP_DB_HOST=localhost
     else
-        WORDPRESS_DB_HOST="$DOCKER_HOST"
+        WP_DB_HOST="$DOCKER_HOST"
     fi
 else
-    WORDPRESS_DB_HOST="${MYSQL_PORT_3306_TCP#tcp://}"
+    WP_DB_HOST="${MYSQL_PORT_3306_TCP#tcp://}"
 fi
 
 printenv
 echo
 
-if [ -z "$WORDPRESS_DB_PASSWORD" ]; then
-    echo >&2 'error: missing required WORDPRESS_DB_PASSWORD environment variable'
-    echo >&2 '  Did you forget to -e WORDPRESS_DB_PASSWORD=... ?'
+if [ -z "$WP_DB_PASS" ]; then
+    echo >&2 'error: missing required WP_DB_PASS environment variable'
+    echo >&2 '  Did you forget to -e WP_DB_PASS=... ?'
     echo >&2
-    echo >&2 '  (Also of interest might be WORDPRESS_DB_USER and WORDPRESS_DB_NAME.)'
+    echo >&2 '  (Also of interest might be WP_DB_USER and WP_DB_NAME.)'
     exit 1
 fi
 
@@ -85,11 +85,11 @@ if ! [ -e "${EXTRACT_DIR}/wordpress/index.php" -a -e "${EXTRACT_DIR}/wordpress/w
     echo >&2 "Complete! WordPress has been successfully set up"
 elif [ -e "${IMPORT_SQL}" ] ; then
     echo "Importing SQL"
-    cat "${IMPORT_SQL}" | TERM=dumb php "${SRC_DIR}/execute-statements-mysql.php" $WORDPRESS_DB_HOST $WORDPRESS_DB_NAME $WORDPRESS_DB_USER $WORDPRESS_DB_PASSWORD
+    cat "${IMPORT_SQL}" | TERM=dumb php "${SRC_DIR}/execute-statements-mysql.php" $WP_DB_HOST $WP_DB_NAME $WP_DB_USER $WP_DB_PASS
     if ! [ -z "$WORDPRESS_HOME" ] ; then
         echo "Fixing values in database"
-        WP_DB_NAME="$WORDPRESS_DB_NAME" WP_HOME="$WORDPRESS_HOME" WP_ABSPATH="$WORDPRESS_ABSPATH" \
-                  WP_DB_USER="$WORDPRESS_DB_USER" WP_DB_PASS="$WORDPRESS_DB_PASSWORD" WP_DB_HOST="$WORDPRESS_DB_HOST" php ${SRC_DIR}/rename.site.php
+        WP_DB_NAME="$WP_DB_NAME" WP_HOME="$WORDPRESS_HOME" WP_ABSPATH="$WORDPRESS_ABSPATH" \
+                  WP_DB_USER="$WP_DB_USER" WP_DB_PASS="$WP_DB_PASS" WP_DB_HOST="$WP_DB_HOST" php ${SRC_DIR}/rename.site.php
     fi
 fi
 
