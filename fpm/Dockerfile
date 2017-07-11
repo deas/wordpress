@@ -1,4 +1,6 @@
-FROM php:7.0-fpm
+FROM php:7.1-fpm
+# FROM php:7-fpm-alpine
+# /bin/sh: apt-get: not found
 ENV LANG C
 
 # install the PHP extensions we need
@@ -14,14 +16,14 @@ RUN apt-get update && apt-get install -y libpng12-dev libjpeg-dev wget ssmtp  \
 
 RUN mkdir ~/software \
     && cd  ~/software/ \
-    && wget http://xdebug.org/files/xdebug-2.5.0.tgz \
-    && tar -xvzf xdebug-2.5.0.tgz \
-    && cd xdebug-2.5.0 \
+    && wget http://xdebug.org/files/xdebug-2.5.5.tgz \
+    && tar -xvzf xdebug-2.5.5.tgz \
+    && cd xdebug-2.5.5 \
     && phpize \
     && ./configure \
     && make \
-    && cp modules/xdebug.so /usr/local/lib/php/extensions/no-debug-non-zts-20151012 \
-    && echo "zend_extension = /usr/local/lib/php/extensions/no-debug-non-zts-20151012/xdebug.so" >>  /usr/local/etc/php/php.ini \
+    && cp modules/xdebug.so /usr/local/lib/php/extensions/no-debug-non-zts-20160303 \
+    && echo "zend_extension = /usr/local/lib/php/extensions/no-debug-non-zts-20160303/xdebug.so" >>  /usr/local/etc/php/php.ini \
     && cd ~ && rm -rf software
 
 # set recommended PHP.ini settings
@@ -60,5 +62,6 @@ ENTRYPOINT ["/entrypoint.sh"]
 #    server bruce:contentreich-web.service:80 172.17.0.24:80 check inter 2s rise 3 fall 2
 # EXPOSE 443
 # CMD ["apache2", "-DFOREGROUND"]
-# EXPOSE 9000
+EXPOSE 9000
+# EXPOSE 9001
 CMD ["php-fpm"]

@@ -20,10 +20,12 @@ SRC_DIR=/
 # WORDPRESS_SCRIPT_DEBUG=${WORDPRESS_SCRIPT_DEBUG-"0"}
 # WORDPRESS_SAVEQUERIES=${WORDPRESS_SAVEQUERIES-"0"}
 PHP_XDEBUG_ENABLED=${PHP_XDEBUG_ENABLED-"0"}
+PHP_XDEBUG_REMOTE_PORT=${PHP_XDEBUG_REMOTE_PORT-"9000"}
+PHP_XDEBUG_HOST=${PHP_XDEBUG_HOST-"localhost"}
 IMPORT_SRC=${IMPORT_SRC-"/usr/share/wordpress-import"}
 IMPORT_SQL=${IMPORT_SRC}/wordpress.sql
-DOCKER_HOST=`ip route show | grep ^default | awk '{print $3}'`
-SMTP_HOST=`{ grep smtp /etc/hosts || echo $DOCKER_HOST; } |  sed -e s,"\s.*",,g`
+# DOCKER_HOST=`ip route show | grep ^default | awk '{print $3}'`
+# SMTP_HOST=`{ grep smtp /etc/hosts || echo $DOCKER_HOST; } |  sed -e s,"\s.*",,g`
 SMTP_DOMAIN=${SMTP_DOMAIN-"localhost"}
 HTTP=${HTTP-"y"}
 HTTPS=${HTTPS-"n"}
@@ -50,21 +52,23 @@ set -xe
 # done
 
 
-if [ -z "$MYSQL_PORT_3306_TCP" ]; then
+# if [ -z "$MYSQL_PORT_3306_TCP" ]; then
     # echo >&2 'error: missing MYSQL_PORT_3306_TCP environment variable'
     # echo >&2 '  Did you forget to --link some_mysql_container:mysql ?'
     # exit 1
     # Host/testing tweak
-    if ip -B link show docker0 >/dev/null 2>&1 ; then
-        WP_DB_HOST=localhost
-    else
-        WP_DB_HOST="$DOCKER_HOST"
-    fi
-else
-    WP_DB_HOST="${MYSQL_PORT_3306_TCP#tcp://}"
-fi
+#    if ip -B link show docker0 >/dev/null 2>&1 ; then
+#        WP_DB_HOST=localhost
+#    else
+#        WP_DB_HOST="$DOCKER_HOST"
+#    fi
+# else
+#     WP_DB_HOST="${MYSQL_PORT_3306_TCP#tcp://}"
+# fi
+
 
 printenv
+
 echo
 
 if [ -z "$WP_DB_PASS" ]; then
@@ -152,7 +156,7 @@ set_config() {
 # #    set_apache_config 'WP_ABSPATH' "$WORDPRESS_ABSPATH"
 # # fi
 
-# xdebug-2.4.0 supports PHP7 (boom!)
+# TODO: Should probably be mounted in
 if grep xdebug.so /usr/local/etc/php/php.ini >/dev/null ; then
     echo "Setting up xdebug.ini"
     cat > /usr/local/etc/php/conf.d/xdebug.ini <<EOF
@@ -161,9 +165,10 @@ xdebug.remote_autostart=0
 ; xdebug.remote_connect_back=0
 ; does not work with docker services
 xdebug.remote_connect_back=0
-xdebug.remote_port=9000
-xdebug.remote_host=$DOCKER_HOST
-xdebug.remote_log=/tmp/php-xdebug.log
+;; 9000 is bad since php fpm uses it by default
+xdebug.remote_port=$PHP_XDEBUG_REMOTE_PORT
+xdebug.remote_host=$PHP_XDEBUG_HOST
+xdebug.remote_log=/var/log/www/php-xdebug.log
 EOF
 fi
 
@@ -255,6 +260,9 @@ fi
 if [ -n "${WWW_GID}" ] ; then
     groupmod -g ${WWW_GID} www-data
 fi
+
+# Make sure php can write!
+chown -R www-data:www-data /var/log/www
 
 # echo ">> exec docker CMD"
 # echo "$@"
