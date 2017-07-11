@@ -35,8 +35,8 @@ set -xe
 # function print_help {
 #     cat <<EOF
 # Usage $0
-# Download and setup alfresco
-#   -v                  Alfresco version, e.g. "4.2.f"
+# Download and setup xy
+#   -v                  xy, e.g. "4.2.f"
 #   -h                  This help
 # EOF
 # }
@@ -124,38 +124,6 @@ set_config() {
     sed -ri "s/((['\"])$key\2\s*,\s*)(['\"]).*\3/\1$sed_escaped_value/" "${EXTRACT_DIR}/wordpress/wp-config.php"
 }
 
-# set_apache_config() {
-#     key="$1"
-#     value="$2"
-#     sed -ri "s/(SetEnv $key) .*/\1 $value/" /etc/apache2/sites-available/wordpress.conf
-#     sed -ri "s/(SetEnv $key) .*/\1 $value/" /etc/apache2/sites-available/wordpress-ssl.conf
-# }
-
-# set_php_config() {
-#     key="$1"
-#     value="$2"
-#     sed -ri "s/($key) *=.*/\1 = $value/" /etc/php5/apache2/php.ini
-# }
-
-# set_php_config 'SMTP' "$WORDPRESS_SMTP_HOST"
-
-# # FIXME : We might wan't to use wordpress.conf from  docroot during development for convenience
-# # No we will implement decent external config pull in
-# # if [ -w /etc/apache2/sites-enabled/wordpress.conf ] ; then
-# echo "Setting up apache virtual host"
-# set_apache_config 'WP_JETPACK_DEV_DEBUG' "$WORDPRESS_JETPACK_DEV_DEBUG"
-# set_apache_config 'WP_DEBUG' "$WORDPRESS_DEBUG"
-# set_apache_config 'WP_DEBUG_LOG' "$WORDPRESS_DEBUG_LOG"
-# set_apache_config 'WP_DEBUG_DISPLAY' "$WORDPRESS_DEBUG_DISPLAY"
-# set_apache_config 'SCRIPT_DEBUG' "$WORDPRESS_SCRIPT_DEBUG"
-# set_apache_config 'SAVEQUERIES' "$WORDPRESS_SAVEQUERIES"
-# set_apache_config 'WP_DB_HOST' "$WORDPRESS_DB_HOST"
-# set_apache_config 'WP_DB_USER' "$WORDPRESS_DB_USER"
-# set_apache_config 'WP_DB_PASS' "$WORDPRESS_DB_PASSWORD"
-# set_apache_config 'WP_DB_NAME' "$WORDPRESS_DB_NAME"
-# #    set_apache_config 'WP_ABSPATH' "$WORDPRESS_ABSPATH"
-# # fi
-
 # TODO: Should probably be mounted in
 if grep xdebug.so /usr/local/etc/php/php.ini >/dev/null ; then
     echo "Setting up xdebug.ini"
@@ -197,65 +165,13 @@ for unique in "${UNIQUES[@]}"; do
     fi
 done
 
-# if [ -n "$APACHE_CHOWN_USER" -a -n "$APACHE_CHOWN_GROUP" ] ; then
-#     echo "Setting ownership in document root"
-#     chown -R "$APACHE_CHOWN_USER:$APACHE_CHOWN_GROUP" .
-# fi
-
 echo "Setting up ssmtp.conf"
-sed -i
-    -e 's/.*mailhub=.*l/mailhub=smtp/'
-    -e '/hostname=/d'
-    -e "s/.*rewriteDomain=.*/rewriteDomain=$SMTP_DOMAIN/"
-    -e "s/.*FromLineOverride=.*/FromLineOverride=YES/"
+sed -i \
+    -e 's/.*mailhub=.*l/mailhub=smtp/' \
+    -e '/hostname=/d' \
+    -e "s/.*rewriteDomain=.*/rewriteDomain=$SMTP_DOMAIN/" \
+    -e "s/.*FromLineOverride=.*/FromLineOverride=YES/" \
      /etc/ssmtp/ssmtp.conf
-#     -e 's/#rewriteDomain=/rewriteDomain=ourdomain/' \
-#     -e '/hostname=/d' \
-#     /etc/ssmtp/ssmtp.conf
-
-# https://issues.apache.org/bugzilla/show_bug.cgi?id=54519
-# rm -f "${APACHE_PID_FILE}"
-# rm -f /var/run/apache2/apache2.pid
-
-
-# # From https://github.com/MarvAmBass/docker-apache2-ssl-secure
-# if [ ! -z ${HSTS_HEADERS_ENABLE+x} ]
-# then
-#   echo ">> HSTS Headers enabled"
-#   sed -i 's/#Header add Strict-Transport-Security/Header add Strict-Transport-Security/g' /etc/apache2/sites-enabled/001-default-ssl
-#
-#   if [ ! -z ${HSTS_HEADERS_ENABLE_NO_SUBDOMAINS+x} ]
-#   then
-#     echo ">> HSTS Headers configured without includeSubdomains"
-#     sed -i 's/; includeSubdomains//g' /etc/apache2/sites-enabled/001-default-ssl
-#   fi
-# else
-#   echo ">> HSTS Headers disabled"
-# fi
-#
-# if [ ! -e "/etc/apache2/external/cert.pem" ] || [ ! -e "/etc/apache2/external/key.pem" ]
-# then
-#   echo ">> generating self signed cert"
-#   openssl req -x509 -newkey rsa:4086 \
-#   -subj "/C=XX/ST=XXXX/L=XXXX/O=XXXX/CN=localhost" \
-#   -keyout "/etc/apache2/external/key.pem" \
-#   -out "/etc/apache2/external/cert.pem" \
-#   -days 3650 -nodes -sha256
-# fi
-#
-# if stat -t ${APACHE_CONFDIR}/external/*.conf >/dev/null 2>&1
-# then
-#     cp ${APACHE_CONFDIR}/external/*.conf ${APACHE_CONFDIR}/sites-enabled/
-# else
-#     echo "Got no external configuration"
-# fi
-#
-# if [ ${HTTP} == "y" ] ; then
-#     a2ensite wordpress
-# fi
-# if [ ${HTTPS} == "y" ] ; then
-#     a2ensite wordpress-ssl
-# fi
 
 # Dev goodness
 if [ -n "${WWW_UID}" ] ; then
