@@ -203,7 +203,12 @@ done
 # fi
 
 echo "Setting up ssmtp.conf"
-sed -i -e 's/.*mailhub=.*l/mailhub=smtp/' -e '/hostname=/d' -e "s/.*rewriteDomain=.*/rewriteDomain=$SMTP_DOMAIN/" /etc/ssmtp/ssmtp.conf
+sed -i
+    -e 's/.*mailhub=.*l/mailhub=smtp/'
+    -e '/hostname=/d'
+    -e "s/.*rewriteDomain=.*/rewriteDomain=$SMTP_DOMAIN/"
+    -e "s/.*FromLineOverride=.*/FromLineOverride=YES/"
+     /etc/ssmtp/ssmtp.conf
 #     -e 's/#rewriteDomain=/rewriteDomain=ourdomain/' \
 #     -e '/hostname=/d' \
 #     /etc/ssmtp/ssmtp.conf
