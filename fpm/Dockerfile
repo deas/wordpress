@@ -8,9 +8,10 @@ ENV LANG C
 #
 # And pagespeed, although we disable it
 # https://developers.google.com/speed/pagespeed/module/download
-RUN apt-get update && apt-get install -y libpng12-dev libjpeg-dev wget ssmtp  \
+# TODO: GD with freetype only for outdated "Really Simple CAPTCHA" in doodle-junkie contact form
+RUN apt-get update && apt-get install -y libpng12-dev libjpeg-dev libfreetype6-dev wget ssmtp  \
         && rm -rf /var/lib/apt/lists/* \
-        && docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
+        && docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr --with-freetype-dir=/usr \
         && docker-php-ext-install gd mysqli opcache \
         && wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -O /wp && chmod 755 /wp
 
@@ -43,6 +44,7 @@ ADD wp-config-template.php /wp-config-template.php
 ADD docker-entrypoint.sh /entrypoint.sh
 ADD execute-statements-mysql.php  /execute-statements-mysql.php
 ADD rename_site.php /rename_site.php
+ADD contentreich.ini /usr/local/etc/php/conf.d
 # http adds dont cache
 # ADD https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar  /wp
 # ADD wp-cli.phar  /wp
